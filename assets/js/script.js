@@ -30,28 +30,61 @@
 /////////
 
 let cityList = [];
+function getInput() {
+  $("#search-button").on("click", function (event) {
+    event.preventDefault();
+    var APIkey = "d0f096bacb872484351b2fb0efd9230b";
+    var city = $("#search-input").val();
+    var queryURL =
+      "http://api.openweathermap.org/data/2.5/forecast?units=metric&q=" +
+      city +
+      "&appid=" +
+      APIkey;
+    fetch(queryURL)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        console.log(data);
+        const cityName = data.city.name;
+        const date = data.list[0].dt_txt;
+        const temperature = data.list[0].main.temp;
+        const icon = data.list[0].weather[0].icon;
+        const windSpeed = data.list[0].wind.speed;
+        const humidity = data.list[0].main.humidity;
+        console.log(cityName, date, temperature, icon, windSpeed, humidity);
+        cityList.push(city);
+        renderInput();
+      });
+  });
+}
+getInput();
 
-$("#search-button").on("click", function (event) {
-  event.preventDefault();
-  var APIkey = "d0f096bacb872484351b2fb0efd9230b";
-  var city = $("#search-input").val();
-  var queryURL =
-    "http://api.openweathermap.org/data/2.5/forecast?units=metric&q=" +
-    city +
-    "&appid=" +
-    APIkey;
-  fetch(queryURL)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      const cityName = data.city.name;
-      const date = data.list[0].dt_txt;
-      const temperature = data.list[0].main.temp;
-      const icon = data.list[0].weather[0].icon;
-      const windSpeed = data.list[0].wind.speed;
-      const humidity = data.list[0].main.humidity;
-      console.log(cityName, date, temperature, icon, windSpeed, humidity);
-    });
-});
+//function to render city input to the html list
+function renderInput(city) {
+  // Deleting the movie buttons prior to adding new movie buttons
+  // (this is necessary otherwise we will have repeat buttons)
+  $("hr").empty();
+  // Looping through the array of movies
+  for (var i = 0; i < cityList.length; i++) {
+    // Then dynamicaly generating buttons for each movie in the array.
+    // This code $("<button>") is all jQuery needs to create the start and end tag. (<button></button>)
+    let cityEL = $("<button>");
+    // Adding a class
+    cityEL.addClass("weather-hr");
+    // Adding a data-attribute with a value of the movie at index i
+    // Providing the button's text with a value of the movie at index i
+
+    cityEL.attr("data-name", cityList[i]);
+    cityEL.text(cityList[i]);
+    // Adding the button to the HTML
+
+    $("hr").append(cityEL);
+  }
+  
+  storeCityList();
+  
+  function storeCityList() {
+    localStorage.setItem("city-list", JSON.stringify(cityList));
+  }
+}
